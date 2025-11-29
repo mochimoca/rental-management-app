@@ -12,7 +12,7 @@ data = {
     '修繕費': [5000, 10000, 3000, 8000],
     '入居者名': ['田中', '佐藤', '山本', '伊藤'],
     '入居開始日': ['2023-04-01', '2022-11-15', '2024-01-01', '2023-07-20'],
-    '空室': [False, False, False, True]  # True: 空室
+    '空室': [False, False, False, True]  # True = 空室
 }
 df = pd.DataFrame(data)
 df['入居開始日'] = pd.to_datetime(df['入居開始日'])
@@ -41,4 +41,26 @@ rent_range = st.sidebar.slider(
 
 filtered_df = filtered_df[
     (filtered_df['家賃'] >= rent_range[0]) &
-    (filtered_df['家賃'] <= rent_range[1]()
+    (filtered_df['家賃'] <= rent_range[1])
+]
+
+# --- メインパネル：フィルタ後の一覧 ---
+st.header("📋 フィルタ後の物件一覧")
+st.dataframe(filtered_df)
+
+# --- 収益分析 ---
+st.header('📊 収益分析')
+
+total_revenue = filtered_df['家賃'].sum()
+total_maintenance = filtered_df['修繕費'].sum()
+net_profit = total_revenue - total_maintenance
+
+col1, col2, col3 = st.columns(3)
+col1.metric("総家賃収入", f"¥{total_revenue:,}")
+col2.metric("総修繕費", f"¥{total_maintenance:,}")
+col3.metric("純利益", f"¥{net_profit:,}")
+
+# --- グラフ（家賃比較） ---
+st.header('📈 物件別家賃比較')
+chart_data = filtered_df[['物件名', '家賃']]
+st.bar_chart(chart_data, x='物件名', y='家賃')
