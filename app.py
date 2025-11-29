@@ -1,0 +1,44 @@
+import streamlit as st
+import pandas as pd
+
+# ヘッダーとタイトルの設定
+st.title("🏡 アパート・マンション レンタル管理アプリ")
+st.subheader("--- 物件情報と収支管理 ---")
+
+# --- ダミーデータ作成 ---
+data = {
+    '物件名': ['Aハイツ', 'Bマンション', 'Cコーポ', 'Dハイツ'],
+    '家賃': [75000, 120000, 55000, 90000],
+    '修繕費': [5000, 10000, 3000, 8000],
+    '入居者名': ['田中', '佐藤', '山本', '伊藤'],
+    '入居開始日': ['2023-04-01', '2022-11-15', '2024-01-01', '2023-07-20'],
+    '空室': [False, False, False, True]  # True: 空室
+}
+df = pd.DataFrame(data)
+df['入居開始日'] = pd.to_datetime(df['入居開始日'])
+
+# --- サイドバーにフィルタリング機能を追加 ---
+st.sidebar.header('フィルタリング')
+
+# 空室フィルタ
+show_empty = st.sidebar.checkbox('空室のみ表示', value=False)
+if show_empty:
+    filtered_df = df[df['空室'] == True]
+else:
+    filtered_df = df.copy()
+
+# 家賃スライダー
+st.sidebar.subheader('家賃範囲')
+min_rent = int(df['家賃'].min())
+max_rent = int(df['家賃'].max())
+
+rent_range = st.sidebar.slider(
+    '選択する家賃の範囲',
+    min_rent,
+    max_rent,
+    (min_rent, max_rent)
+)
+
+filtered_df = filtered_df[
+    (filtered_df['家賃'] >= rent_range[0]) &
+    (filtered_df['家賃'] <= rent_range[1]()
