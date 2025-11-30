@@ -1,5 +1,39 @@
 import streamlit as st
 import pandas as pd
+import gspread
+from google.oauth2.service_account import Credentials
+
+# --- Google Sheets からデータを読み込む関数 ---
+def load_sheet(sheet_url, sheet_name):
+    scopes = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ]
+
+    credentials = Credentials.from_service_account_info(
+        st.secrets["gcp_service_account"], scopes=scopes
+    )
+    client = gspread.authorize(credentials)
+    sheet = client.open_by_url(sheet_url)
+    worksheet = sheet.worksheet(sheet_name)
+
+    data = worksheet.get_all_records()
+    df = pd.DataFrame(data)
+    return df
+
+# --- list シートを読み込む ---
+LIST_SHEET_URL = "https://docs.google.com/spreadsheets/d/1hIToCx1ICTuIv9qA8PNx_y9R3xI-7cjWarr-5XOfGxg/edit?pli=1&gid=0"
+list_df = load_sheet(LIST_SHEET_URL, "list")
+
+st.write("📄 ゆらぎマスタ（list）シートを読み込みました")
+st.dataframe(list_df)
+
+
+
+
+
+import streamlit as st
+import pandas as pd
 
 # ヘッダーとタイトルの設定
 st.title("🏡 アパート・マンション レンタル管理アプリ")
