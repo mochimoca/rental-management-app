@@ -12,10 +12,11 @@ def load_sheet(sheet_url, sheet_name):
     # ⚠ ここは json.loads しない！すでに dict になっている
     service_account_info = st.secrets["gcp_service_account"]
 
-    scopes = [
-        "https://www.googleapis.com/auth/spreadsheets.readonly",
-        "https://www.googleapis.com/auth/drive.readonly"
-    ]
+scopes = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+]
+
 
     credentials = Credentials.from_service_account_info(
         service_account_info,
