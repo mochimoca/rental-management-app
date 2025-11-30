@@ -33,7 +33,8 @@ def load_sheet(sheet_url, sheet_name):
 # ================================================
 # 📄 list シート読み込み
 # ================================================
-LIST_SHEET_URL = "https://docs.google.com/spreadsheets/d/1hIToCx1ICTuIv9qA8PNx_y9R3xI-7cjWarr-5XOfGxg/edit#gid=0"
+LIST_SHEET_URL = "https://docs.google.com/spreadsheets/d/1hIToCx1ICTuIv9qA8PNx_y9R3xI-7cjWarr-5XOfGxg"
+
 
 st.header("📄 ゆらぎマスタ（list）読み込みテスト")
 
