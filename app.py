@@ -9,14 +9,13 @@ from google.oauth2.service_account import Credentials
 def load_sheet(sheet_url, sheet_name):
 
     # --- Streamlit Secrets に保存したサービスアカウントを取得 ---
-    # ⚠ ここは json.loads しない！すでに dict になっている
     service_account_info = st.secrets["gcp_service_account"]
 
-scopes = [
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive"
-]
-
+    # --- ★ここが正しい scopes（重要） ---
+    scopes = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ]
 
     credentials = Credentials.from_service_account_info(
         service_account_info,
@@ -34,9 +33,7 @@ scopes = [
 # ================================================
 # 📄 list シート読み込み
 # ================================================
-LIST_SHEET_URL = "https://docs.google.com/spreadsheets/d/1hIToCx1ICTuIv9qA8PNx_y9R3xI-7cjWarr-5XOfGxg/edit#gid=0"
-
-
+LIST_SHEET_URL = "https://docs.google.com/spreadsheets/d/1hIToCx1ICTuIv9qA8PNx_y9R3xI-7cjWarr-5XOfGxg"
 
 st.header("📄 ゆらぎマスタ（list）読み込みテスト")
 
@@ -55,7 +52,7 @@ except Exception as e:
 st.title("🏡 アパート・マンション レンタル管理アプリ（動作テスト版）")
 st.subheader("--- 物件情報と収支管理 ---")
 
-# --- ダミーデータ（後で削除OK） ---
+# --- ダミーデータ ---
 data = {
     '物件名': ['Aハイツ', 'Bマンション', 'Cコーポ', 'Dハイツ'],
     '家賃': [75000, 120000, 55000, 90000],
