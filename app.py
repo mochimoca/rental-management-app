@@ -1,14 +1,16 @@
 import streamlit as st
 import pandas as pd
 import gspread
-import json
 from google.oauth2.service_account import Credentials
 
-# --- Google Sheets からデータを読み込む関数 ---
+# ================================================
+# 🔐 Google Sheets 読み込み関数（完全版）
+# ================================================
 def load_sheet(sheet_url, sheet_name):
 
-    # gcp_service_account の値は "文字列" なので JSON に変換
-    service_account_info = json.loads(st.secrets["gcp_service_account"])
+    # --- Streamlit Secrets に保存したサービスアカウントを取得 ---
+    # ⚠ ここは json.loads しない！すでに dict になっている
+    service_account_info = st.secrets["gcp_service_account"]
 
     scopes = [
         "https://www.googleapis.com/auth/spreadsheets.readonly",
@@ -16,7 +18,8 @@ def load_sheet(sheet_url, sheet_name):
     ]
 
     credentials = Credentials.from_service_account_info(
-        service_account_info, scopes=scopes
+        service_account_info,
+        scopes=scopes
     )
 
     gc = gspread.authorize(credentials)
@@ -27,24 +30,29 @@ def load_sheet(sheet_url, sheet_name):
     return df
 
 
-# --- list シートを読み込む ---
-LIST_SHEET_URL = "https://docs.google.com/spreadsheets/d/1hIToCx1ICTuIv9qA8PNx_y9R3xI-7cjWarr-5XOfGxg/edit?pli=1&gid=0"
-list_df = load_sheet(LIST_SHEET_URL, "list")
+# ================================================
+# 📄 list シート読み込み
+# ================================================
+LIST_SHEET_URL = "https://docs.google.com/spreadsheets/d/1hIToCx1ICTuIv9qA8PNx_y9R3xI-7cjWarr-5XOfGxg/edit#gid=0"
 
-st.write("📄 ゆらぎマスタ（list）シートを読み込みました")
-st.dataframe(list_df)
+st.header("📄 ゆらぎマスタ（list）読み込みテスト")
+
+try:
+    list_df = load_sheet(LIST_SHEET_URL, "list")
+    st.success("list シートの読み込みに成功しました！")
+    st.dataframe(list_df)
+except Exception as e:
+    st.error("list シートの読み込みに失敗しました。エラー内容：")
+    st.exception(e)
 
 
-# ======================
-# ここから UI 部分（あなたのコードはそのまま）
-# ======================
-
-import pandas as pd
-
-st.title("🏡 アパート・マンション レンタル管理アプリ")
+# ================================================
+# 🏡 以下はテスト画面（ダミー物件）
+# ================================================
+st.title("🏡 アパート・マンション レンタル管理アプリ（動作テスト版）")
 st.subheader("--- 物件情報と収支管理 ---")
 
-# --- ダミーデータ作成 ---
+# --- ダミーデータ（後で削除OK） ---
 data = {
     '物件名': ['Aハイツ', 'Bマンション', 'Cコーポ', 'Dハイツ'],
     '家賃': [75000, 120000, 55000, 90000],
@@ -56,11 +64,12 @@ data = {
 df = pd.DataFrame(data)
 df['入居開始日'] = pd.to_datetime(df['入居開始日'])
 
+# --- フィルタリング ---
 st.sidebar.header('フィルタリング')
 
 show_empty = st.sidebar.checkbox('空室のみ表示', value=False)
 if show_empty:
-    filtered_df = df[df['空室'] == True]
+    filtered_df = df[df['空室']]
 else:
     filtered_df = df.copy()
 
@@ -80,11 +89,12 @@ filtered_df = filtered_df[
     (filtered_df['家賃'] <= rent_range[1])
 ]
 
+# --- 表示 ---
 st.header("📋 フィルタ後の物件一覧")
 st.dataframe(filtered_df)
 
-st.header('📊 収益分析')
-
+# --- 収益分析 ---
+st.header("📊 収益分析")
 total_revenue = filtered_df['家賃'].sum()
 total_maintenance = filtered_df['修繕費'].sum()
 net_profit = total_revenue - total_maintenance
@@ -94,6 +104,7 @@ col1.metric("総家賃収入", f"¥{total_revenue:,}")
 col2.metric("総修繕費", f"¥{total_maintenance:,}")
 col3.metric("純利益", f"¥{net_profit:,}")
 
-st.header('📈 物件別家賃比較')
+# --- グラフ ---
+st.header("📈 物件別家賃比較")
 chart_data = filtered_df[['物件名', '家賃']]
 st.bar_chart(chart_data, x='物件名', y='家賃')
